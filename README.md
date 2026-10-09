@@ -100,7 +100,7 @@ Each tone affects word choice, sentence rhythm, emoji usage, punctuation, and ho
 
 ---
 
-#### System Architecture
+## System Architecture
 AI CONTENT REPURPOSING ENGINE
 System Architecture
 
