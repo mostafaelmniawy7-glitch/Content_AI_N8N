@@ -104,11 +104,11 @@ Each tone affects word choice, sentence rhythm, emoji usage, punctuation, and ho
 AI CONTENT REPURPOSING ENGINE
 System Architecture
 
-=============================================================
-STAGE 1: REQUEST & ROUTING
-=============================================================
 
-[Webhook]
+## STAGE 1: REQUEST & ROUTING
+
+
+[Webhook] 
   Receives POST with multipart/form-data
   Fields: data (file), source_type, language, tone, session_id
      |
@@ -118,9 +118,9 @@ STAGE 1: REQUEST & ROUTING
   Output 1  -->  URL path
   Output 2  -->  Text path
 
-=============================================================
-STAGE 2: CONTENT EXTRACTION
-=============================================================
+
+## STAGE 2: CONTENT EXTRACTION
+
 
 PDF Path:
 [Extract PDF Text]
@@ -146,9 +146,9 @@ All paths converge at:
   source_text, source_url, source_type, source_file_name,
   language, tone, session_id
 
-=============================================================
-STAGE 3: AI GENERATION
-=============================================================
+
+## STAGE 3: AI GENERATION
+
 
 [AI Repurposer — OpenAI GPT-4o-mini]
   System Prompt:
@@ -169,9 +169,9 @@ STAGE 3: AI GENERATION
   Merges with Parse Input metadata
   Returns unified object
 
-=============================================================
-STAGE 4: IMAGE, SAVE & RESPONSE
-=============================================================
+
+## STAGE 4: IMAGE, SAVE & RESPONSE
+
 
 [Generate Image — OpenAI gpt-image-1-mini]
   Input: image_prompt from AI Repurposer
@@ -196,9 +196,8 @@ STAGE 4: IMAGE, SAVE & RESPONSE
      v
 HTTP 200 OK — JSON Response
 
-=============================================================
-EXTERNAL SERVICES
-=============================================================
+
+## EXTERNAL SERVICES
 
 OpenAI API
   - GPT-4o-mini        --> Content generation
@@ -211,9 +210,9 @@ Supabase
 External URLs
   - HTTP scraping      --> Articles and web pages
 
-=============================================================
-DATA FLOW SUMMARY
-=============================================================
+
+## DATA FLOW SUMMARY
+
 
 User Input
    |
@@ -233,9 +232,9 @@ Return JSON
    |
 Client receives
 
-=============================================================
-KEY DESIGN PRINCIPLES
-=============================================================
+
+## KEY DESIGN PRINCIPLES
+
 
 - Modular       : Each stage independent
 - Multi-source  : 3 input types supported
