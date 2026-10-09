@@ -48,7 +48,7 @@
       "name": "search_knowledge_base",
       "credentials": {
         "supabaseApi": {
-          "id": "jHf91rCtYwCQ9qVZ",
+          "id": "",
           "name": "Supabase account 2"
         }
       }
