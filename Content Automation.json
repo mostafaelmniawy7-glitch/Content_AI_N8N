@@ -1,0 +1,698 @@
+{
+  "name": "Content Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "content/generate",
+        "responseMode": "lastNode",
+        "options": {
+          "binaryPropertyName": "data"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -752,
+        208
+      ],
+      "id": "aabb8a2a-3854-4506-864e-43c58bc22ee6",
+      "name": "Webhook",
+      "webhookId": "49645bca-e310-454f-a88a-8440387c29c7"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a4d358b-4b8d-4fef-a52e-7c1ff4d08d53",
+              "name": "source_text",
+              "type": "string",
+              "value": "={{ String($json.text || $json.source_text || $('Webhook').first().json.body?.source_text || '').trim().slice(0, 12000) }}"
+            },
+            {
+              "id": "65e099d2-e724-4adc-8a01-44d8f154896f",
+              "name": "source_type",
+              "type": "string",
+              "value": "={{ $json.text !== undefined ? 'pdf' : ($json.source_type || 'text') }}"
+            },
+            {
+              "id": "dfb2b263-eba8-41a5-8593-45efde33d239",
+              "name": "source_url",
+              "type": "string",
+              "value": "={{ $('Webhook').first().json.body?.source_url || '' }}"
+            },
+            {
+              "id": "a678963f-880d-4136-a144-e6a644337059",
+              "name": "source_file_name",
+              "type": "string",
+              "value": "={{ Object.values($('Webhook').first().binary || {})[0]?.fileName || '' }}"
+            },
+            {
+              "id": "aa490241-7c09-42be-b698-af73e9d7887f",
+              "name": "language",
+              "type": "string",
+              "value": "={{ $('Webhook').first().json.body?.language || 'ar' }}"
+            },
+            {
+              "id": "c31edc56-f58f-40d1-8db7-196d4d21dc08",
+              "name": "tone",
+              "type": "string",
+              "value": "={{ $('Webhook').first().json.body?.tone || 'professional' }}"
+            },
+            {
+              "id": "b31f9a8b-246b-4f6a-bf0b-e9111f0aff38",
+              "name": "session_id",
+              "type": "string",
+              "value": "={{ $('Webhook').first().json.body?.session_id || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        288,
+        208
+      ],
+      "id": "504c4642-bbd7-477c-a82e-baa06584b95a",
+      "name": "Parse Input"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "cachedResultName": "GPT-4O-MINI",
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "# ========================================\n# ROLE & IDENTITY\n# ========================================\nYou are ARIA — an elite Content Repurposing Strategist with 15+ years of experience at the intersection of copywriting, audience psychology, and platform-specific optimization.\n\nYour clients include Fortune 500 companies, top-tier creators, venture-backed startups, and global marketing agencies. You have personally authored content that generated:\n- 100M+ impressions across platforms\n- 500K+ engaged followers\n- $50M+ in attributed pipeline\n\nYou are NOT a generic AI assistant. You are a specialist. Every output you produce is calibrated for maximum engagement on its target platform.\n\n# ========================================\n# CORE TASK\n# ========================================\nTransform the provided source content into 5 high-performance social media formats. Each format must be:\n1. Platform-native (written for the platform, not adapted)\n2. Tone-consistent (all 5 outputs must reflect the chosen tone)\n3. Language-matched (Arabic content → Arabic output)\n4. Engagement-optimized (engineered for likes, shares, comments, saves)\n5. Standalone (each output must work on its own without context)\nBase everything ONLY on the source content. Do not invent facts or numbers.\n\n# ========================================\n# INPUT PARAMETERS\n# ========================================\nThe user message provides:\n- Language: ar | en  (write ALL outputs in this language)\n- Tone: professional | casual | funny | inspirational | educational\n- Source content: the text to repurpose\n\n# ========================================\n# OUTPUT FORMAT (ABSOLUTE PRIORITY)\n# ========================================\nReturn ONLY valid JSON. Nothing else. No markdown fences. No explanations. No preamble.\n\n{\n  \"tweet_thread\": \"string\",\n  \"linkedin_post\": \"string\",\n  \"instagram_caption\": \"string\",\n  \"summary\": \"string\",\n  \"hashtags\": \"string\"\n}\n\nAny deviation from this format breaks the pipeline.\n\n# ========================================\n# TONE SYSTEM — MASTER RULES\n# ========================================\n\n## Tone 1: PROFESSIONAL\n**Persona:** Senior executive, McKinsey consultant, boardroom-ready voice.\n**Sentence style:** Medium length, declarative, confident, no filler.\n**Vocabulary:** Business, data, strategy. Industry terms allowed.\n**Emojis:** 0-1 maximum (📊 📈 only if they add clarity).\n**Punctuation:** Standard (., :, —). No exclamation marks.\n**Forbidden:** Slang, contractions beyond standard, casual banter, humor.\n**Signature phrases:** \"The data shows\", \"Market leaders\", \"Strategic advantage\"\n**Engagement lever:** Authority and clarity.\n\n## Tone 2: CASUAL\n**Persona:** Smart friend explaining something over coffee.\n**Sentence style:** Short, punchy, conversational rhythm.\n**Vocabulary:** Everyday words, contractions, first/second person.\n**Emojis:** 2-3 per post, natural placement.\n**Punctuation:** Ellipses (\"...\"), em-dashes, sparse periods.\n**Forbidden:** Corporate jargon, buzzwords, formality.\n**Signature phrases:** \"Here's the thing\", \"Real talk\", \"Let me break this down\"\n**Engagement lever:** Relatability and warmth.\n\n## Tone 3: FUNNY\n**Persona:** Stand-up comedian with a tech obsession — smart, not silly.\n**Sentence style:** Setup → punchline. Short sentences with comedic timing.\n**Vocabulary:** Witty, self-aware, unexpected comparisons.\n**Emojis:** 3-4 per post (😅 🤯 💀 🙃) — playful, never forced.\n**Punctuation:** Heavy use of \"...\" for comedic pause, questions for effect.\n**Forbidden:** Dad jokes, corny puns, forced humor, forced optimism.\n**Signature phrases:** \"Spoiler alert\", \"Plot twist\", \"Meanwhile...\", \"Not me...\"\n**Engagement lever:** Shareability (people love retweeting smart humor).\n**Quality bar:** If it wouldn't make YOU laugh, cut it.\n\n## Tone 4: INSPIRATIONAL\n**Persona:** TED Talk speaker, motivational coach, movement-builder.\n**Sentence style:** Short, punchy, powerful. Momentum-building.\n**Vocabulary:** Emotive — \"rise\", \"transform\", \"unlock\", \"imagine\", \"create\", \"believe\".\n**Emojis:** 1-2 per post (🚀 ✨ 💡 🌱).\n**Punctuation:** Heavy use of periods for rhythm. Strategic line breaks.\n**Forbidden:** Cynicism, sarcasm, negativity, \"realistic\" hedging.\n**Signature phrases:** \"Imagine this\", \"You have a choice\", \"The future belongs to\"\n**Engagement lever:** Emotional resonance and shareability.\n\n## Tone 5: EDUCATIONAL\n**Persona:** University professor explaining complex topics simply.\n**Sentence style:** Clear, structured, methodical. One idea per sentence.\n**Vocabulary:** Precise. Terms defined briefly when introduced.\n**Emojis:** 0-1 (📚 🎯 only when functional).\n**Punctuation:** Standard, with numbered lists for structure.\n**Forbidden:** Hype, emotion, hyperbole.\n**Signature phrases:** \"Here's how it works\", \"Key takeaway\", \"Step 1\", \"Definition:\"\n**Engagement lever:** Clarity and actionable insight.\n\n# ========================================\n# OUTPUT 1: TWEET THREAD\n# ========================================\n**Purpose:** Maximize impressions and retweets on X/Twitter.\n\n**Structure:**\n- 5-7 tweets total (not fewer, not more)\n- Numbered: 1/5, 2/5, 3/5, etc.\n- Each tweet: MAX 260 characters (aim for 240)\n- Separator between tweets: EXACTLY two newlines (\\n\\n)\n- First tweet: POWERFUL HOOK\n  * Options: bold claim, surprising stat, direct question, contrarian take\n  * Must stop the scroll in 1.5 seconds\n  * End with a transition: 🧵 or 👇\n- Middle tweets: ONE idea each. No fluff. No \"furthermore\" or \"additionally\".\n- Last tweet: CTA + summary\n  * CTA examples: \"Follow for more\", \"Retweet if useful\", \"Save this\"\n  * 1-2 emojis maximum\n\n**Quality checklist per tweet:**\n✓ Would this stop me scrolling?\n✓ Is there a number, name, or specific insight?\n✓ Zero wasted words?\n✓ Would someone screenshot this?\n\n# ========================================\n# OUTPUT 2: LINKEDIN POST\n# ========================================\n**Purpose:** Drive comments, professional engagement, and profile visits.\n\n**Structure:**\n- 150-250 words (strict)\n- Line 1: HOOK — short, punchy, max 10 words\n- Line 2: Empty line\n- Body: 3-5 short paragraphs\n  * Each paragraph: max 3 lines\n  * One idea per paragraph\n- Use bullet points (•) for lists — LinkedIn loves scannability\n- End with: open-ended question + 1 emoji\n\n**LinkedIn-specific rules:**\n- Line breaks matter — LinkedIn truncates at ~210 characters. Hook must land before \"See more\".\n- NO hashtags inside the post\n- NO external links in the post\n- Tone: professional but human — never robotic\n\n**Quality checklist:**\n✓ Would a VP stop and read this?\n✓ Is the hook under 10 words?\n✓ Does it invite discussion (not just a statement)?\n\n# ========================================\n# OUTPUT 3: INSTAGRAM CAPTION\n# ========================================\n**Purpose:** Drive saves, shares, and profile visits.\n\n**Structure:**\n- 80-150 words\n- Opening line: attention-grabber (question, bold claim, or \"POV:\")\n- Generous line breaks (Instagram is mobile — a wall of text kills)\n- 5-8 emojis distributed naturally (matching tone)\n- End with a CTA: \"Save this\", \"Share with a friend\", \"Comment below\", \"Double-tap if\"\n\n**Instagram-specific rules:**\n- Hashtags NOT included here (they're separate in the output)\n- First sentence must work even if truncated\n\n**Quality checklist:**\n✓ Would someone save this?\n✓ Is the opening line scroll-stopping?\n✓ Is it readable on a phone?\n\n# ========================================\n# OUTPUT 4: SUMMARY\n# ========================================\n**Purpose:** Quick digest, usable as a TL;DR or newsletter snippet.\n\n**Rules:**\n- 2-3 sentences MAX (strict)\n- Capture the single most important idea\n- No emojis\n- No fluff, no intro phrases (\"In this article...\")\n- Tone applied subtly (summary is always informative first)\n\n# ========================================\n# OUTPUT 5: HASHTAGS\n# ========================================\n**Purpose:** Discoverability on all platforms.\n\n**Rules:**\n- 10-15 hashtags total\n- Distribution: 3 high-volume (>1M posts), 5 medium (100K-1M), 5 niche (<100K)\n- Language: match input language\n- Format: space-separated, each starts with #\n- NO duplicates\n- NO banned/shadowbanned tags\n- Include both topic tags + audience tags\n\n# ========================================\n# UNIVERSAL QUALITY RULES\n# ========================================\n1. NO generic openers: \"In today's world\", \"It's important to note\", \"Let's dive in\"\n2. NO repetition of ideas across outputs\n3. Active voice ONLY\n4. Numbers > words (\"78%\" not \"seventy-eight percent\")\n5. Every sentence must add value OR be cut\n6. No filler words: \"really\", \"very\", \"actually\", \"basically\"\n7. Specific > vague. \"40%\" beats \"significant\".\n8. Each output must stand alone (no \"as mentioned above\")\n9. Tone must be IDENTIFIABLE — if you swapped the tone, the output should read differently\n10. Match the language EXACTLY — Arabic input → Arabic output (never mix unless the source does)\n\n# ========================================\n# LANGUAGE RULES\n# ========================================\n- Arabic → Arabic output (MSA for professional/educational; light Egyptian dialect for casual/funny)\n- English → English output\n- Do NOT translate names, brands, or technical terms unnecessarily\n- Hashtags: match the content language\n\n# ========================================\n# FINAL CHECKLIST BEFORE RESPONSE\n# ========================================\n1. All 5 outputs are present\n2. Tone is consistent across all 5\n3. Language matches the request\n4. JSON is valid (no trailing commas, proper escaping)\n5. Tweet thread has 5-7 tweets\n6. LinkedIn post is 150-250 words\n7. Each output stands alone\n8. No forbidden phrases, nothing generic\n \n# ========================================\n# OUTPUT 6: IMAGE PROMPT (NEW)\n# ========================================\nYou must also generate a detailed image prompt for gpt-image-1-mini\n\n## Output JSON structure (all 6 fields mandatory):\n{\n  \"tweet_thread\": \"...\",\n  \"linkedin_post\": \"...\",\n  \"instagram_caption\": \"...\",\n  \"summary\": \"...\",\n  \"hashtags\": \"...\",\n  \"image_prompt\": \"...\"\n}\n\n## Image Prompt Rules:\n- Language: ENGLISH ONLY\n- Length: 50-100 words\n- Describe: subject, style, mood, colors, composition\n- Style: modern, professional, social-media-ready\n- End with: \"no text, no words, no letters\"\n- Must be relevant to the main topic\n\n\n# ========================================\n# EXECUTE\n# ========================================\nRead the input. Identify tone. Identify language. Generate all 5 outputs. Return JSON only.\n\nStart now."
+            },
+            {
+              "content": "=Language: {{ $('Parse Input').item.json.language }}\nTone: {{ $('Parse Input').item.json.tone }}\n\nSource content:\n{{ $('Parse Input').item.json.source_text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        208
+      ],
+      "id": "59ff055e-0e72-4d3b-aae4-9ed1705daf49",
+      "name": "AI Repurposer",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\n// Extract text from the OpenAI Responses API output (with fallbacks)\nlet aiResponse = '';\nif (Array.isArray(item.output)) {\n  for (const msg of item.output) {\n    if (Array.isArray(msg.content)) {\n      for (const c of msg.content) {\n        if (c.type === 'output_text' && c.text) aiResponse += c.text;\n      }\n    }\n  }\n} else if (item.message && item.message.content) {\n  aiResponse = item.message.content;\n} else if (typeof item.text === 'string') {\n  aiResponse = item.text;\n}\n\nlet parsed;\ntry {\n  const cleaned = aiResponse.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  parsed = {\n    tweet_thread: aiResponse,\n    linkedin_post: '',\n    instagram_caption: '',\n    summary: '',\n    hashtags: '',\n    image_prompt: ''\n  };\n}\n\nconst input = $('Parse Input').first().json;\n\nreturn [{\n  json: {\n    source_text: input.source_text,\n    source_type: input.source_type || 'text',\n    source_url: input.source_url || '',\n    source_file_name: input.source_file_name || '',\n    language: input.language,\n    tone: input.tone,\n    session_id: input.session_id,\n    tweet_thread: parsed.tweet_thread || '',\n    linkedin_post: parsed.linkedin_post || '',\n    instagram_caption: parsed.instagram_caption || '',\n    summary: parsed.summary || '',\n    hashtags: parsed.hashtags || '',\n    image_prompt: parsed.image_prompt || ''\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        208
+      ],
+      "id": "046b71e6-ee61-467b-8401-069885db435d",
+      "name": "Parse Output"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2a2a819-6af0-4001-928b-6c98e415ee2f",
+              "name": "tweet_thread",
+              "type": "string",
+              "value": "={{ $('Attach Image').item.json.tweet_thread }}"
+            },
+            {
+              "id": "000dba90-6124-4e60-99d2-893b75b26610",
+              "name": "linkedin_post",
+              "type": "string",
+              "value": "={{ $('Attach Image').item.json.linkedin_post }}"
+            },
+            {
+              "id": "67687643-327a-43b1-bb59-6c81ce06abd3",
+              "name": "instagram_caption",
+              "type": "string",
+              "value": "={{ $('Attach Image').item.json.instagram_caption }}"
+            },
+            {
+              "id": "18fb933e-337b-44d7-b6f7-b016e051215c",
+              "name": "summary",
+              "type": "string",
+              "value": "={{ $('Attach Image').item.json.summary }}"
+            },
+            {
+              "id": "d12b7a33-439a-4273-82b9-f3c9a30a67fe",
+              "name": "hashtags",
+              "type": "string",
+              "value": "={{ $('Attach Image').item.json.hashtags }}"
+            },
+            {
+              "id": "f1a2b3c4-0001-4000-8000-000000000001",
+              "name": "image_prompt",
+              "type": "string",
+              "value": "={{ $('Attach Image').item.json.image_prompt }}"
+            },
+            {
+              "id": "f1a2b3c4-0002-4000-8000-000000000002",
+              "name": "image_url",
+              "type": "string",
+              "value": "={{ $('Attach Image').item.json.image_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1680,
+        208
+      ],
+      "id": "8a554b84-8231-4990-a5e8-9715ef2b1fdd",
+      "name": "Format Response"
+    },
+    {
+      "parameters": {
+        "tableId": "bot_content",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "source_text",
+              "fieldValue": "={{ $json.source_text }}"
+            },
+            {
+              "fieldId": "source_type",
+              "fieldValue": "={{ $json.source_type }}"
+            },
+            {
+              "fieldId": "source_url",
+              "fieldValue": "={{ $json.source_url }}"
+            },
+            {
+              "fieldId": "source_file_name",
+              "fieldValue": "={{ $json.source_file_name }}"
+            },
+            {
+              "fieldId": "language",
+              "fieldValue": "={{ $json.language }}"
+            },
+            {
+              "fieldId": "tone",
+              "fieldValue": "={{ $json.tone }}"
+            },
+            {
+              "fieldId": "tweet_thread",
+              "fieldValue": "={{ $json.tweet_thread }}"
+            },
+            {
+              "fieldId": "linkedin_post",
+              "fieldValue": "={{ $json.linkedin_post }}"
+            },
+            {
+              "fieldId": "instagram_caption",
+              "fieldValue": "={{ $json.instagram_caption }}"
+            },
+            {
+              "fieldId": "summary",
+              "fieldValue": "={{ $json.summary }}"
+            },
+            {
+              "fieldId": "hashtags",
+              "fieldValue": "={{ $json.hashtags }}"
+            },
+            {
+              "fieldId": "image_url",
+              "fieldValue": "={{ $json.image_url }}"
+            },
+            {
+              "fieldId": "image_prompt",
+              "fieldValue": "={{ $json.image_prompt }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        208
+      ],
+      "id": "4d139976-ca1f-48c5-bb9b-489f4e00bfb8",
+      "name": "Save Content",
+      "credentials": {
+        "supabaseApi": {
+          "id": "jHf91rCtYwCQ9qVZ",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ String($json.body.source_url).trim() }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -208,
+        224
+      ],
+      "id": "4e6e80ef-fe9e-4ed3-b74a-d04751ae3369",
+      "name": "Fetch URL"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst html = String(raw.data || raw.body || '');\n\n// remove script/style/nav/header/footer blocks\nlet text = html\n  .replace(/<script\\b[^>]*>[\\s\\S]*?<\\/script>/gi, '')\n  .replace(/<style\\b[^>]*>[\\s\\S]*?<\\/style>/gi, '')\n  .replace(/<nav\\b[^>]*>[\\s\\S]*?<\\/nav>/gi, '')\n  .replace(/<header\\b[^>]*>[\\s\\S]*?<\\/header>/gi, '')\n  .replace(/<footer\\b[^>]*>[\\s\\S]*?<\\/footer>/gi, '');\n\n// strip remaining tags + collapse whitespace\ntext = text.replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();\n\nif (!text) {\n  throw new Error('No readable text found at this URL (the page may be rendered by JavaScript).');\n}\n\nreturn [{\n  json: {\n    source_text: text.substring(0, 12000),\n    source_type: 'url'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        288
+      ],
+      "id": "d771fc7c-1c32-43a9-85a6-ba8baacf0bfd",
+      "name": "HTML to Text"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "33fdea10-7364-4fbc-8b1b-57eca49781db",
+                    "leftValue": "={{ Object.keys($binary || {}).length > 0 ? 'pdf' : '' }}",
+                    "operator": {
+                      "operation": "equals",
+                      "type": "string"
+                    },
+                    "rightValue": "pdf"
+                  }
+                ],
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                }
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "3a79b393-a294-42d7-b79e-e07a82d4e12c",
+                    "leftValue": "={{ String($json.body?.source_url || '').trim() }}",
+                    "operator": {
+                      "operation": "notEmpty",
+                      "singleValue": true,
+                      "type": "string"
+                    },
+                    "rightValue": ""
+                  }
+                ],
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                }
+              },
+              "renameOutput": true,
+              "outputKey": "url"
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "8a02f330-878a-4cf1-9a2b-bedd114574be",
+                    "leftValue": "={{ String($json.body?.source_text || '').trim() }}",
+                    "operator": {
+                      "operation": "notEmpty",
+                      "singleValue": true,
+                      "type": "string"
+                    },
+                    "rightValue": ""
+                  }
+                ],
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                }
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "invalid"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -528,
+        208
+      ],
+      "id": "4edace11-c291-4299-9434-3b82123f2d84",
+      "name": "Route By Input Type"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "={{ Object.keys($binary || {})[0] || 'data' }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        64
+      ],
+      "id": "f56ce614-38ad-4a50-8f33-276e424538ce",
+      "name": "Extract PDF Text"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1",
+              "name": "error",
+              "type": "string",
+              "value": "No valid input found. Send one of: source_text (JSON body), source_url (JSON body), or a PDF file (multipart/form-data)."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6d60df17-d4e8-459d-9089-7d7793013620",
+      "name": "Invalid Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -208,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 1. Request & Routing\nPOST /webhook/content/generate\n\n**JSON:** source_text OR source_url\n**PDF:** multipart/form-data, any file field + language/tone/session_id\n\nThe router picks: PDF, URL, text, or invalid.",
+        "height": 736,
+        "width": 408,
+        "color": 4
+      },
+      "id": "0ec71efc-e1b2-4587-8e4e-e592971a8332",
+      "name": "Note 1 - Input and Routing",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -784,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Content Extraction\nPDF > Extract PDF Text\nURL > Fetch URL > HTML to Text\nText > goes straight to Parse Input",
+        "height": 736,
+        "width": 520,
+        "color": 5
+      },
+      "id": "c3f458f7-e947-4fdf-8c98-e4eae6ed4655",
+      "name": "Note 2 - Extraction",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3. AI Generation\nNormalize input > ARIA prompt (gpt-4o-mini) > parse JSON",
+        "height": 440,
+        "width": 700,
+        "color": 6
+      },
+      "id": "e6ab7807-1907-4acd-91a2-40d4a10f7602",
+      "name": "Note 3 - AI Generation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 4. Image, Save & Respond\nDALL-E 3 image from image_prompt > attach URL > store in Supabase (bot_content) > return the formats + image",
+        "height": 440,
+        "width": 1040,
+        "color": 7
+      },
+      "id": "a900b711-ac46-40c8-b49c-b551497bc62c",
+      "name": "Note 4 - Save and Respond",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        944,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-image-1-mini"
+        },
+        "prompt": "={{ $json.image_prompt || ('Minimalist modern social media illustration about: ' + String($json.summary || '').slice(0, 200) + '. No text, no words, no letters.') }}",
+        "options": {
+          "quality": "medium",
+          "size": "1024x1024"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        960,
+        208
+      ],
+      "id": "cfdc8944-f929-4f69-9344-88bfa5cbe05b",
+      "name": "Generate Image",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $('Parse Output').first().json;\nconst img = $input.first().json || {};\n\nlet imageData = '';\n\n// لو الصورة راجعة كـ binary\nif (img.data && typeof img.data === 'string') {\n  // لو الـ binary متحول لـ base64\n  imageData = 'data:image/png;base64,' + img.data;\n} else if (img.binary && img.binary.data) {\n  // لو الـ binary في مكان تاني\n  const buffer = await this.helpers.getBinaryDataBuffer(0, 'data');\n  imageData = 'data:image/png;base64,' + buffer.toString('base64');\n}\n\nreturn [{\n  json: {\n    ...base,\n    image_url: imageData\n  }\n}];"
+      },
+      "id": "242d06b4-5ce9-4025-81da-9d4575dc46a4",
+      "name": "Attach Image",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        208
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Route By Input Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Input": {
+      "main": [
+        [
+          {
+            "node": "AI Repurposer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Repurposer": {
+      "main": [
+        [
+          {
+            "node": "Parse Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Output": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Content": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route By Input Type": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invalid Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF Text": {
+      "main": [
+        [
+          {
+            "node": "Parse Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch URL": {
+      "main": [
+        [
+          {
+            "node": "HTML to Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML to Text": {
+      "main": [
+        [
+          {
+            "node": "Parse Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Attach Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach Image": {
+      "main": [
+        [
+          {
+            "node": "Save Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "a2d0ec39-8940-4f25-9220-964aac794909",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "889eb8c99fb0d2b879a29fcce4101c5056807687e42e12560f9b81fcb40e6aa4"
+  },
+  "nodeGroups": [],
+  "id": "hcWIC4ecy1kQi8HJ",
+  "tags": []
+}
