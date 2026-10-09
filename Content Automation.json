@@ -18,7 +18,7 @@
       ],
       "id": "aabb8a2a-3854-4506-864e-43c58bc22ee6",
       "name": "Webhook",
-      "webhookId": "49645bca-e310-454f-a88a-8440387c29c7"
+      "webhookId": ""
     },
     {
       "parameters": {
@@ -259,7 +259,7 @@
       "name": "Save Content",
       "credentials": {
         "supabaseApi": {
-          "id": "jHf91rCtYwCQ9qVZ",
+          "id": "",
           "name": "Supabase account 2"
         }
       }
